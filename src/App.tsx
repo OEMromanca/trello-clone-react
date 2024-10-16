@@ -19,7 +19,7 @@ function App() {
   const handleLogin = async () => {
     try {
       // Získanie CSRF tokenu
-      const tokenResponse = await fetch('http://localhost:5000/api/csrf-token', {
+      const tokenResponse = await fetch('https://trello-clone-0ln5.onrender.com/api/csrf-token', {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -32,7 +32,7 @@ function App() {
       
 
       // Prihlásenie používateľa
-      const loginResponse = await fetch('http://localhost:5000/users/login', {
+      const loginResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -61,7 +61,7 @@ function App() {
   const fetchUserProfile = async () => {
     try {
 
-      const profileResponse = await fetch('http://localhost:5000/users/profile', {
+      const profileResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/profile', {
         method: 'GET',
         credentials: 'include',
         headers: {
