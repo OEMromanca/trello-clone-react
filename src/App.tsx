@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie'; // Import knižnice na manipuláciu s cookies
 import './App.css';
-
 
 interface UserProfile {
   _id: string;
@@ -16,43 +16,39 @@ function App() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);  
-
   const handleLogin = async () => {
     try {
-
-      const tokenResponse = await fetch('https://trello-clone-0ln5.onrender.com/api/csrf-token', {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      const tokenData = await tokenResponse.json();
-      const csrfToken = tokenData.csrfToken;
-
-      // Prihlásenie používateľa
+      // Získaj CSRF token z cookies
+      const csrfToken = Cookies.get('XSRF-TOKEN');
+  
+      // Skontroluj, či je token definovaný
+      if (!csrfToken) {
+        throw new Error('CSRF token not found');
+      }
+  
       const loginResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken,
+          'X-CSRF-Token': csrfToken, // Pridaj CSRF token do hlavičky
         },
         body: JSON.stringify({ email: username, password }),
       });
-
-      const loginData = await loginResponse.json();
-
+  
       if (!loginResponse.ok) {
+        const loginData = await loginResponse.json();
         throw new Error('Login failed: ' + (loginData.message || 'Unknown error'));
       }
-
-      console.log('Login successful:', loginData);
-      setIsLoggedIn(true); 
+  
+      console.log('Login successful');
+      setIsLoggedIn(true);
     } catch (error) {
       console.error('Error:', error);
       setError((error as Error).message);
     }
   };
+  
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -60,9 +56,7 @@ function App() {
         const profileResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/profile', {
           method: 'GET',
           credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
 
         if (!profileResponse.ok) {
@@ -116,7 +110,6 @@ function App() {
         </div>
       )}
 
-      {/* Zobrazenie chýb */}
       {error && <p className="error-message">{error}</p>}
     </div>
   );
