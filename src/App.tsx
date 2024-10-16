@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 
-// Definovanie rozhrania pre profil používateľa
+
 interface UserProfile {
   _id: string;
   firstName: string;
@@ -15,10 +15,11 @@ function App() {
   const [password, setPassword] = useState('');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);  
 
   const handleLogin = async () => {
     try {
-      // Získanie CSRF tokenu
+
       const tokenResponse = await fetch('https://trello-clone-0ln5.onrender.com/api/csrf-token', {
         method: 'GET',
         credentials: 'include',
@@ -27,9 +28,6 @@ function App() {
 
       const tokenData = await tokenResponse.json();
       const csrfToken = tokenData.csrfToken;
-
-      console.log(csrfToken);
-      
 
       // Prihlásenie používateľa
       const loginResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/login', {
@@ -45,43 +43,45 @@ function App() {
       const loginData = await loginResponse.json();
 
       if (!loginResponse.ok) {
-        throw new Error('Login failed: ' + loginData.message);
+        throw new Error('Login failed: ' + (loginData.message || 'Unknown error'));
       }
 
       console.log('Login successful:', loginData);
-
-
-      fetchUserProfile();  
+      setIsLoggedIn(true); 
     } catch (error) {
       console.error('Error:', error);
       setError((error as Error).message);
     }
   };
 
-  const fetchUserProfile = async () => {
-    try {
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const profileResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/profile', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-      const profileResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/profile', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          // Žiadny token tu, pretože ho server získa z cookies
-        },
-      });
+        if (!profileResponse.ok) {
+          throw new Error('Failed to fetch user profile');
+        }
 
-      if (!profileResponse.ok) {
-        throw new Error('Failed to fetch user profile');
+        const profileData: UserProfile = await profileResponse.json();
+        setUserProfile(profileData);
+        console.log('User Profile:', profileData);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        setError((error as Error).message);
       }
+    };
 
-      const profileData: UserProfile = await profileResponse.json();
-      setUserProfile(profileData);
-      console.log('User Profile:', profileData);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      setError((error as Error).message);
+    if (isLoggedIn) {
+      fetchUserProfile();
     }
-  };
+  }, [isLoggedIn]); 
 
   return (
     <div className="app-container">
@@ -106,7 +106,6 @@ function App() {
         Prihlásiť sa
       </button>
 
-      {/* Zobrazenie profilu používateľa */}
       {userProfile && (
         <div className="user-profile">
           <h2>Profil používateľa</h2>
