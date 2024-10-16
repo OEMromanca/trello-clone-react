@@ -18,8 +18,12 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);  
   const handleLogin = async () => {
     try {
-      // Získaj CSRF token z cookies
-      const csrfToken = Cookies.get('XSRF-TOKEN');
+      await fetch('http://localhost:5000/api/csrf-token', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const csrfToken = Cookies.get('X-CSRF-Token');
   
       // Skontroluj, či je token definovaný
       if (!csrfToken) {
