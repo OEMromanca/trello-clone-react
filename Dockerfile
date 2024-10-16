@@ -1,13 +1,16 @@
+
 FROM node:20
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install  
+RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+ENV PORT=80
+
+EXPOSE 80
 
 CMD ["npm", "start"]
