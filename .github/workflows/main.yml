@@ -22,12 +22,20 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image for Development
         uses: docker/build-push-action@v4
         with:
           context: . 
           push: true
-          tags: romanca/trello-clone-frontend:latest
+          tags: romanca/trello-clone-front:dev
+
+      - name: Build and push Docker image for Production
+        uses: docker/build-push-action@v4
+        with:
+          context: . 
+          push: true
+          tags: romanca/trello-clone-front:prod
+          file: Dockerfile.prod
 
       - name: Notify on success
-        run: echo "Docker image has been built and pushed successfully!"
+        run: echo "Docker images for both Development and Production have been built and pushed successfully!"

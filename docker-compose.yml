@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  backend:
+    image: romanca/trello-clone-backend:dev
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+
+  frontend:
+    image: romanca/trello-clone-front:dev
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_PORT=3000
