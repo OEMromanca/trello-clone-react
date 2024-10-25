@@ -28,6 +28,8 @@ jobs:
           context: . 
           push: true
           tags: romanca/trello-clone-front:dev
+          file: Dockerfile.dev
+
 
       - name: Build and push Docker image for Production
         uses: docker/build-push-action@v4
