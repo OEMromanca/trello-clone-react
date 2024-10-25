@@ -7,6 +7,7 @@ services:
       - "5000:5000"
     environment:
       - NODE_ENV=development
+      - MONGODB_URI=mongodb+srv://rjamrisko:Zk0cSHXVaG2Sqkmb@cluster0.q6xa5.mongodb.net/dbname?retryWrites=true&w=majority
 
   frontend:
     image: romanca/trello-clone-front:dev

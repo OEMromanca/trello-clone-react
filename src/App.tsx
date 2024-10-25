@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie'; // Import knižnice na manipuláciu s cookies
+import Cookies from 'js-cookie';  
 import './App.css';
 
 interface UserProfile {
@@ -30,7 +30,7 @@ function App() {
         throw new Error('CSRF token not found');
       }
   
-      const loginResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/login', {
+      const loginResponse = await fetch('http://localhost:5000/users/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -57,7 +57,7 @@ function App() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const profileResponse = await fetch('https://trello-clone-0ln5.onrender.com/users/profile', {
+        const profileResponse = await fetch('http://localhost:5000/users/profile', {
           method: 'GET',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
