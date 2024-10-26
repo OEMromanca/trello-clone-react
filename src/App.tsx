@@ -10,7 +10,7 @@ interface UserProfile {
   roles: string;
 }
 
-function App() {
+const App =() => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
