@@ -25,7 +25,7 @@ function App() {
       });
       const csrfToken = Cookies.get('X-CSRF-Token');
   
-      // Skontroluj, či je token definovaný
+      
       if (!csrfToken) {
         throw new Error('CSRF token not found');
       }
@@ -35,7 +35,7 @@ function App() {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken, // Pridaj CSRF token do hlavičky
+          'X-CSRF-Token': csrfToken,  
         },
         body: JSON.stringify({ email: username, password }),
       });
