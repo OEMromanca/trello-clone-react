@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';  
 import './App.css';
+import { Button } from '@mui/material';
+
 
 interface UserProfile {
   _id: string;
@@ -100,9 +102,10 @@ const App =() => {
           className="input-field"
         />
       </div>
-      <button onClick={handleLogin} className="login-button">
-       Log in
-      </button>
+     
+      <Button variant="contained" color="primary" onClick={handleLogin}>
+        Sign in
+      </Button>
 
       {userProfile && (
         <div className="user-profile">

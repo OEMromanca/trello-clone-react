@@ -19,7 +19,10 @@ services:
       - VITE_PORT=3000
     labels:
       - "com.centurylinklabs.watchtower.enable=true" 
-
+    volumes:
+      - ./frontend:/app/frontend   
+      - /app/frontend/node_modules   
+  
   watchtower:
     image: containrrr/watchtower
     volumes:
