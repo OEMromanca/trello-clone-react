@@ -101,7 +101,7 @@ const App =() => {
         />
       </div>
       <button onClick={handleLogin} className="login-button">
-       Log in
+       Prihlasit sa
       </button>
 
       {userProfile && (
