@@ -9,9 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "vite preview --port 3000",
-    "docker:up": "docker-compose up -d --build",
-    "docker:down": "docker-compose down",
-    "docker:restart": "docker compose up -d --build"
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:restart": "docker compose down && docker compose build --no-cache && docker compose up -d"
   },
   "dependencies": {
     "js-cookie": "^3.0.5",
