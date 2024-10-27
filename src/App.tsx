@@ -104,7 +104,7 @@ const App =() => {
       </div>
      
       <Button variant="contained" color="primary" onClick={handleLogin}>
-        Sign in
+        Sign
       </Button>
 
       {userProfile && (

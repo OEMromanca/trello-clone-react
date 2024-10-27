@@ -12,17 +12,19 @@ services:
       - "com.centurylinklabs.watchtower.enable=true" 
 
   frontend:
-    image: romanca/trello-clone-front:dev
+    build:
+      context: ./frontend
     ports:
       - "3000:3000"
     environment:
       - VITE_PORT=3000
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true" 
+      - NODE_ENV=development
     volumes:
-      - ./frontend:/app/frontend   
-      - /app/frontend/node_modules   
-  
+      - ./frontend:/app   
+      - /app/node_modules   
+    working_dir: /app
+    command: ["npm", "run", "dev"] 
+
   watchtower:
     image: containrrr/watchtower
     volumes:
