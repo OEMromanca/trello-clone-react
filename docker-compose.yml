@@ -8,6 +8,8 @@ services:
     environment:
       - NODE_ENV=development
       - MONGODB_URI=${MONGODB_URI}
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true" 
 
   frontend:
     image: romanca/trello-clone-front:dev
@@ -15,8 +17,8 @@ services:
       - "3000:3000"
     environment:
       - VITE_PORT=3000
-
-  
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true" 
 
   watchtower:
     image: containrrr/watchtower
@@ -24,5 +26,5 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_POLL_INTERVAL=60 
+      - WATCHTOWER_POLL_INTERVAL=300  
     restart: always
