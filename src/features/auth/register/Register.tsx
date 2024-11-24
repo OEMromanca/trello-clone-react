@@ -11,25 +11,41 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Link, useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid2";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchCsrfToken, registerUser } from "../../../api/api";
 
+const registerSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
+type RegisterForm = z.infer<typeof registerSchema>;
+
 const Register = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onSubmit = async (data: RegisterForm) => {
     setLoading(true);
+    setError(null);
 
     try {
       await fetchCsrfToken();
-      await registerUser({ firstName, lastName, email, password });
-      navigate("/user-profile");
+      await registerUser(data);
+      navigate("/");
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -63,7 +79,7 @@ const Register = () => {
           sx={{ width: "100%", mt: 1 }}
           component="form"
           noValidate
-          onSubmit={handleRegister}
+          onSubmit={handleSubmit(onSubmit)}
         >
           <Grid container spacing={2}>
             <Grid size={6} component="div">
@@ -73,11 +89,11 @@ const Register = () => {
                 fullWidth
                 id="firstName"
                 label="First Name"
-                name="firstName"
                 autoComplete="firstName"
                 autoFocus
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                {...register("firstName")}
+                error={!!errors.firstName}
+                helperText={errors.firstName?.message}
                 sx={{ mb: 2 }}
               />
             </Grid>
@@ -88,10 +104,10 @@ const Register = () => {
                 fullWidth
                 id="lastName"
                 label="Last Name"
-                name="lastName"
                 autoComplete="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                {...register("lastName")}
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
                 sx={{ mb: 2 }}
               />
             </Grid>
@@ -103,10 +119,10 @@ const Register = () => {
                 fullWidth
                 id="email"
                 label="Email Address"
-                name="email"
                 autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register("email")}
+                error={!!errors.email}
+                helperText={errors.email?.message}
                 sx={{ mb: 2 }}
               />
             </Grid>
@@ -115,13 +131,13 @@ const Register = () => {
                 variant="outlined"
                 required
                 fullWidth
-                name="password"
                 label="Password"
                 type="password"
                 id="password"
                 autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password")}
+                error={!!errors.password}
+                helperText={errors.password?.message}
                 sx={{ mb: 2 }}
               />
             </Grid>

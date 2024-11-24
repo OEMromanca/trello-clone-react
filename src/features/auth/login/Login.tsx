@@ -10,23 +10,39 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Link, useNavigate } from "react-router-dom";
-import Grid2 from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid2";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchCsrfToken, loginUser } from "../../../api/api";
 
+const loginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters long"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
+
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginForm) => {
     setLoading(true);
+    setError(null);
 
     try {
       await fetchCsrfToken();
-      await loginUser(username, password);
+      await loginUser(data.username, data.password);
       navigate("/user-profile");
     } catch (error) {
       if (error instanceof Error) {
@@ -61,7 +77,7 @@ const Login = () => {
           sx={{ width: "100%", mt: 1 }}
           component="form"
           noValidate
-          onSubmit={handleLogin}
+          onSubmit={handleSubmit(onSubmit)}
         >
           <TextField
             variant="outlined"
@@ -70,11 +86,11 @@ const Login = () => {
             fullWidth
             id="username"
             label="Username"
-            name="username"
             autoComplete="username"
             autoFocus
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            {...register("username")}
+            error={!!errors.username}
+            helperText={errors.username?.message}
             sx={{ mb: 2 }}
           />
           <TextField
@@ -82,13 +98,13 @@ const Login = () => {
             margin="normal"
             required
             fullWidth
-            name="password"
             label="Password"
             type="password"
             id="password"
             autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("password")}
+            error={!!errors.password}
+            helperText={errors.password?.message}
             sx={{ mb: 2 }}
           />
           <Button
@@ -106,7 +122,7 @@ const Login = () => {
             )}
           </Button>
 
-          <Grid2
+          <Grid
             container
             sx={{
               mt: 2,
@@ -114,15 +130,15 @@ const Login = () => {
               justifyContent: "space-between",
             }}
           >
-            <Grid2>
+            <Grid>
               <Link to="">Forgot password?</Link>
-            </Grid2>
-            <Grid2>
+            </Grid>
+            <Grid>
               <Link to="/register" className="register-link">
                 {"Don't have an account? Sign Up"}
               </Link>
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
 
           {error && (
             <Typography color="error" align="center" sx={{ mt: 2 }}>
