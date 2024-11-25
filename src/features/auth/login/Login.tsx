@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Button,
   TextField,
@@ -15,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchCsrfToken, loginUser } from "../../../api/api";
+import { useMutation } from "@tanstack/react-query";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters long"),
@@ -24,8 +24,6 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 const Login = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -36,23 +34,27 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginForm) => {
-    setLoading(true);
-    setError(null);
+  const loginMutationFn = async ({ username, password }: LoginForm) => {
+    await fetchCsrfToken();
+    await loginUser(username, password);
+  };
 
-    try {
-      await fetchCsrfToken();
-      await loginUser(data.username, data.password);
+  const {
+    mutate: login,
+    isPending,
+    error,
+  } = useMutation({
+    mutationFn: loginMutationFn,
+    onSuccess: () => {
       navigate("/user-profile");
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Login failed");
-      }
-    } finally {
-      setLoading(false);
-    }
+    },
+    onError: (err: Error) => {
+      console.error(err.message);
+    },
+  });
+
+  const onSubmit = (data: LoginForm) => {
+    login(data);
   };
 
   return (
@@ -113,9 +115,9 @@ const Login = () => {
             variant="contained"
             color="primary"
             sx={{ mt: 3, mb: 2 }}
-            disabled={loading}
+            disabled={isPending}
           >
-            {loading ? (
+            {isPending ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
               "Sign In"
@@ -142,7 +144,7 @@ const Login = () => {
 
           {error && (
             <Typography color="error" align="center" sx={{ mt: 2 }}>
-              {error}
+              {error instanceof Error ? error.message : "Login failed"}
             </Typography>
           )}
         </Box>

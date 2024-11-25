@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Button,
   TextField,
@@ -15,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchCsrfToken, registerUser } from "../../../api/api";
+import { useMutation } from "@tanstack/react-query";
 
 const registerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -26,35 +26,37 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 const Register = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const {
-    register,
+    register: formRegister,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = async (data: RegisterForm) => {
-    setLoading(true);
-    setError(null);
+  const registerMutationFn = async (data: RegisterForm) => {
+    await fetchCsrfToken();
+    await registerUser(data);
+  };
 
-    try {
-      await fetchCsrfToken();
-      await registerUser(data);
+  const {
+    mutate: registerMutation,
+    isPending,
+    error,
+  } = useMutation({
+    mutationFn: registerMutationFn,
+    onSuccess: () => {
       navigate("/");
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Registration failed");
-      }
-    } finally {
-      setLoading(false);
-    }
+    },
+    onError: (err: Error) => {
+      console.error(err.message);
+    },
+  });
+
+  const onSubmit = (data: RegisterForm) => {
+    registerMutation(data);
   };
 
   return (
@@ -91,7 +93,7 @@ const Register = () => {
                 label="First Name"
                 autoComplete="firstName"
                 autoFocus
-                {...register("firstName")}
+                {...formRegister("firstName")}
                 error={!!errors.firstName}
                 helperText={errors.firstName?.message}
                 sx={{ mb: 2 }}
@@ -105,7 +107,7 @@ const Register = () => {
                 id="lastName"
                 label="Last Name"
                 autoComplete="lastName"
-                {...register("lastName")}
+                {...formRegister("lastName")}
                 error={!!errors.lastName}
                 helperText={errors.lastName?.message}
                 sx={{ mb: 2 }}
@@ -120,7 +122,7 @@ const Register = () => {
                 id="email"
                 label="Email Address"
                 autoComplete="email"
-                {...register("email")}
+                {...formRegister("email")}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 sx={{ mb: 2 }}
@@ -135,7 +137,7 @@ const Register = () => {
                 type="password"
                 id="password"
                 autoComplete="current-password"
-                {...register("password")}
+                {...formRegister("password")}
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 sx={{ mb: 2 }}
@@ -149,9 +151,9 @@ const Register = () => {
             variant="contained"
             color="primary"
             sx={{ mt: 3, mb: 2 }}
-            disabled={loading}
+            disabled={isPending}
           >
-            {loading ? (
+            {isPending ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
               "Register"
@@ -175,7 +177,7 @@ const Register = () => {
 
           {error && (
             <Typography color="error" align="center" sx={{ mt: 2 }}>
-              {error}
+              {error instanceof Error ? error.message : "Registration failed"}
             </Typography>
           )}
         </Box>
